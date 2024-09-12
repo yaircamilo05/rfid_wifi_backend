@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login RFID</title>
+  <script>
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/status'); // Endpoint para obtener el usuario
+        const result = await response.json();
+
+        if (response.ok) {
+          document.getElementById('user').textContent = result.user || 'Ninguno'; // Actualiza el contenido en el HTML
+        } else {
+          console.error('Error al obtener el estado:', result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un problema al obtener el estado.');
+      }
+    }
+
+    async function login() {
+      const rfid = document.getElementById('rfid').value;
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rfid })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert(result.message + ' Usuario: ' + result.user);
+          fetchUser(); // Actualiza el usuario mostrado en la página
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un problema al enviar la solicitud.');
+      }
+    }
+
+    // Llama a fetchUser cada 5 segundos
+    setInterval(fetchUser, 2000);
+
+    // Llama a fetchUser al cargar la página
+    window.onload = fetchUser;
+  </script>
+</head>
+<body>
+  <h1>Login RFID</h1>
+  <p>Usuario actual: <span id="user">Ninguno</span></p> <!-- Elemento para mostrar el usuario -->
+</body>
+</html>
